@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play } from "lucide-react";
-import { useState } from "react";
+import { Play, X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import VideoModal from "./VideoModal";
 
@@ -57,26 +57,125 @@ const works = [
   }
 ];
 
+type Work = typeof works[0];
+
+function WorkCard({ work, onClick }: { work: Work; onClick: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Auto-play when card scrolls into view using IntersectionObserver
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!videoRef.current) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+        } else {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+          setIsPlaying(false);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
+
+  const stopPreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      variants={{
+        hidden: { opacity: 0, y: 30 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+      }}
+      className="group relative rounded-xl overflow-hidden cursor-pointer bg-[#111]"
+      onClick={onClick}
+    >
+      {/* Thumbnail — fades out when video plays */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden">
+        <Image
+          src={work.thumbnail}
+          alt={work.title}
+          fill
+          className={`object-cover transition-opacity duration-700 z-10 relative ${isPlaying ? "opacity-0" : "opacity-100"}`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+
+        {/* Muted looping preview video */}
+        <video
+          ref={videoRef}
+          src={work.videoUrl}
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isPlaying ? "opacity-100" : "opacity-0"}`}
+        />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-70 z-20" />
+
+        {/* Play button — shown when NOT playing */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-[0_0_20px_rgba(201,169,110,0.4)]">
+              <Play className="text-gold ml-1" size={22} fill="currentColor" />
+            </div>
+          </div>
+        )}
+
+        {/* Dismiss (✕) button — shown on mobile when video IS playing */}
+        {isPlaying && (
+          <button
+            onClick={stopPreview}
+            className="absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-black/70 backdrop-blur-md flex items-center justify-center border border-white/20 text-white hover:bg-gold hover:text-black transition-all duration-200 shadow-lg"
+            aria-label="Stop preview"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Card info */}
+      <div className="absolute bottom-0 left-0 w-full p-5 z-30">
+        <span className="inline-block px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold mb-2 border border-gold/20">
+          {work.category}
+        </span>
+        <h4 className="text-lg md:text-xl font-semibold text-white drop-shadow-md">
+          {work.title}
+        </h4>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function FeaturedWork() {
   const [activeVideo, setActiveVideo] = useState<typeof works[0] | null>(null);
 
   const containerVariants: any = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 }
-    }
-  };
-
-  const itemVariants: any = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+    show: { opacity: 1, transition: { staggerChildren: 0.15 } }
   };
 
   return (
     <section id="portfolio" className="py-24 bg-[#0B0B0B] relative z-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -85,10 +184,10 @@ export default function FeaturedWork() {
         >
           <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gold mb-4">Our Portfolio</h2>
           <h3 className="text-3xl md:text-5xl font-bold text-white">Featured Masterpieces</h3>
-          <div className="w-24 h-1 bg-gold mt-8 rounded-full hidden md:block"></div>
+          <div className="w-24 h-1 bg-gold mt-8 rounded-full hidden md:block" />
         </motion.div>
 
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="show"
@@ -96,41 +195,11 @@ export default function FeaturedWork() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
         >
           {works.map((work) => (
-            <motion.div 
-              key={work.id} 
-              variants={itemVariants}
-              className="group relative rounded-xl overflow-hidden cursor-pointer bg-[#111]"
+            <WorkCard
+              key={work.id}
+              work={work}
               onClick={() => setActiveVideo(work)}
-            >
-              {/* Thumbnail */}
-              <div className="relative aspect-[16/10] w-full overflow-hidden">
-                <Image
-                  src={work.thumbnail}
-                  alt={work.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
-                
-                {/* Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 will-change-transform shadow-[0_0_20px_rgba(201,169,110,0.5)]">
-                    <Play className="text-gold ml-1" size={24} fill="currentColor" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Info */}
-              <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span className="inline-block px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold mb-3 border border-gold/20">
-                  {work.category}
-                </span>
-                <h4 className="text-xl md:text-2xl font-semibold text-white drop-shadow-md">
-                  {work.title}
-                </h4>
-              </div>
-            </motion.div>
+            />
           ))}
         </motion.div>
       </div>

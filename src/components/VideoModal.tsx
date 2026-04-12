@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -13,16 +13,19 @@ interface VideoModalProps {
 }
 
 export default function VideoModal({ isOpen, onClose, videoUrl, title, description }: VideoModalProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
+    if (!isOpen && videoRef.current) videoRef.current.pause();
+    return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
 
   return (
     <AnimatePresence>
@@ -31,45 +34,54 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title, descripti
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={onClose}
         >
+          {/* Video card — click inside stops propagation */}
           <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-            className="relative w-full max-w-5xl bg-[#0e0e0e] rounded-xl overflow-hidden shadow-[0_0_50px_rgba(201,169,110,0.15)] border border-white/5"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative w-full max-w-4xl rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
+            {/* ✕ Close button — inside card, top-right corner */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-gold hover:text-black rounded-full flex items-center justify-center transition-colors duration-300 text-white backdrop-blur-md"
+              className="absolute top-3 right-3 z-50 w-10 h-10 rounded-full bg-black/80 border-2 border-white text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-lg"
+              aria-label="Close"
             >
-              <X size={20} />
+              <X size={20} strokeWidth={2.5} />
             </button>
 
-            {/* Video Container */}
-            <div className="relative w-full h-[80vh] flex items-center justify-center bg-black">
-              {videoUrl?.endsWith('.mp4') ? (
-                <video src={videoUrl} controls autoPlay playsInline className="max-w-full max-h-full object-contain"></video>
-              ) : (
+            {/* Title bar */}
+            {title && (
+              <div className="px-5 pr-14 py-4 bg-[#111] border-b border-white/5">
+                <h3 className="text-white font-semibold text-base">{title}</h3>
+                {description && <p className="text-white/50 text-sm mt-0.5 font-light">{description}</p>}
+              </div>
+            )}
+
+            {/* Video */}
+            {videoUrl?.endsWith(".mp4") ? (
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full max-h-[72vh] object-contain bg-black"
+              />
+            ) : (
+              <div className="relative w-full pt-[56.25%] bg-black">
                 <iframe
                   src={`${videoUrl}?autoplay=1&rel=0&modestbranding=1`}
-                  className="w-full h-full"
+                  className="absolute inset-0 w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                ></iframe>
-              )}
-            </div>
-
-            {/* Content info if provided */}
-            {(title || description) && (
-              <div className="p-6 md:p-8 bg-gradient-to-b from-[#0e0e0e] to-black">
-                {title && <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>}
-                {description && <p className="text-white/70 font-light">{description}</p>}
+                />
               </div>
             )}
           </motion.div>
