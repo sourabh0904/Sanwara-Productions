@@ -37,12 +37,12 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Logo */}
         <Link href="#" className="flex items-center gap-2 group">
-          <div className="relative w-85 h-25 md:w-[500px] md:h-[130px] shrink-0 hover:scale-105 transition-transform duration-300">
+          <div className="relative w-48 h-12 md:w-[240px] md:h-[60px] shrink-0 hover:scale-105 transition-transform duration-300">
             <Image 
               src="/media/logo.png" 
               alt="Sanwara Productions" 
               fill 
-              className="object-contain object-left" 
+              className="object-contain object-left md:object-center" 
               priority 
             />
           </div>

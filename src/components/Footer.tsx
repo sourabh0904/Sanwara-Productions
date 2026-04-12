@@ -12,7 +12,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="max-w-sm">
           <Link href="#" className="flex items-center gap-2 group mb-6 inline-block">
-            <div className="relative w-80 h-24 md:w-[500px] md:h-[130px] shrink-0 hover:scale-105 transition-transform duration-300">
+            <div className="relative w-48 h-12 md:w-[240px] md:h-[60px] shrink-0 hover:scale-105 transition-transform duration-300">
               <Image 
                 src="/media/logo.png" 
                 alt="Sanwara Productions" 

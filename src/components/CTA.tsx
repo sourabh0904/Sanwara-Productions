@@ -39,7 +39,7 @@ export default function CTA() {
             </Link>
 
             <Link
-              href="https://wa.me/1234567890" // Dummy WhatsApp Link
+              href="https://wa.me/918818888899"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30 font-medium rounded-full flex items-center justify-center gap-3 hover:bg-[#25D366] hover:text-white hover:scale-105 transition-all duration-300 w-full sm:w-auto tracking-wide group"
