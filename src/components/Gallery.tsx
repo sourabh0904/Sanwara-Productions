@@ -147,45 +147,72 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[300] bg-black/97 flex items-center justify-center"
+            className="fixed inset-0 z-[9999] bg-black flex flex-col"
             onClick={() => setLightboxIdx(null)}
           >
-            {/* Controls */}
-            <button onClick={() => setLightboxIdx(null)} className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-black border-2 border-white text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-2xl">
-              <X size={20} strokeWidth={2.5} />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-2 md:left-6 z-10 w-11 h-11 rounded-full bg-black/70 border border-white/20 text-white flex items-center justify-center hover:bg-gold hover:text-black transition-all duration-200">
+            {/* ── Top bar ── always on top, clears phone status bar + navbar ── */}
+            <div
+              className="flex items-center justify-between px-4 pt-16 pb-4 shrink-0 bg-gradient-to-b from-black to-transparent"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="text-white/50 text-sm tracking-wider font-light">
+                {lightboxIdx + 1} &nbsp;/&nbsp; {IMAGE_IDS.length}
+              </span>
+              {/* BIG gold close button — impossible to miss */}
+              <button
+                onClick={() => setLightboxIdx(null)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold text-black font-semibold text-sm shadow-2xl active:scale-95 transition-transform duration-150"
+                aria-label="Close"
+              >
+                <X size={18} strokeWidth={3} />
+                <span>Close</span>
+              </button>
+            </div>
+
+            {/* ── Image area ── */}
+            <div className="flex-1 flex items-center justify-center px-14 min-h-0 overflow-hidden">
+              <div className="max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+                {lbError ? (
+                  <div className="flex flex-col items-center gap-4 text-white/40 p-12">
+                    <ImageOff size={48} />
+                    <p className="text-sm text-center">Image unavailable.<br />Check Google Drive sharing settings.</p>
+                  </div>
+                ) : (
+                  <motion.img
+                    key={lightboxIdx}
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.25 }}
+                    src={imgUrl(IMAGE_IDS[lightboxIdx])}
+                    alt={`Photo ${lightboxIdx + 1}`}
+                    referrerPolicy="no-referrer"
+                    className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl"
+                    onError={() => setLbError(true)}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* ── Left / Right arrows — vertically centered on sides ── */}
+            <button
+              onClick={(e) => { e.stopPropagation(); prev(); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/70 border border-white/20 text-white flex items-center justify-center hover:bg-gold hover:text-black active:scale-95 transition-all duration-200"
+              aria-label="Previous"
+            >
               <ChevronLeft size={20} />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-2 md:right-6 z-10 w-11 h-11 rounded-full bg-black/70 border border-white/20 text-white flex items-center justify-center hover:bg-gold hover:text-black transition-all duration-200">
+            <button
+              onClick={(e) => { e.stopPropagation(); next(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-black/70 border border-white/20 text-white flex items-center justify-center hover:bg-gold hover:text-black active:scale-95 transition-all duration-200"
+              aria-label="Next"
+            >
               <ChevronRight size={20} />
             </button>
 
-            {/* Image */}
-            <div className="max-w-[90vw] max-h-[85vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-              {lbError ? (
-                <div className="flex flex-col items-center gap-4 text-white/40 p-12">
-                  <ImageOff size={48} />
-                  <p className="text-sm text-center">Image unavailable.<br />Check Google Drive sharing settings.</p>
-                </div>
-              ) : (
-                <motion.img
-                  key={lightboxIdx}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.25 }}
-                  src={imgUrl(IMAGE_IDS[lightboxIdx])}
-                  alt={`Photo ${lightboxIdx + 1}`}
-                  referrerPolicy="no-referrer"
-                  className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
-                  onError={() => setLbError(true)}
-                />
-              )}
-            </div>
-
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 text-sm tracking-wider">
-              {lightboxIdx + 1} / {IMAGE_IDS.length}
-            </div>
+            {/* Swipe hint on mobile */}
+            <p className="text-center text-white/25 text-xs pb-4 shrink-0 md:hidden">
+              Tap outside to close
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

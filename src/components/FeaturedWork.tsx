@@ -2,11 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import VideoModal from "./VideoModal";
 
-// lh3.googleusercontent.com/d/ID = Google's own CDN for public Drive files
-const driveImg = (id: string) => `https://lh3.googleusercontent.com/d/${id}`;
+const driveImg     = (id: string) => `https://lh3.googleusercontent.com/d/${id}`;
 const drivePreview = (id: string) => `https://drive.google.com/file/d/${id}/preview`;
 
 const works = [
@@ -16,6 +15,8 @@ const works = [
     category: "Sacred Wedding",
     thumbId: "1P05rn6AgZCJ6ZHqMNq8vjvJ6RX73Idbt",
     videoId: "1zk2mYPtKpSOZ-Rnw60zzL1OfAO3tayQ9",
+    // local preview — muted autoplay works on all devices
+    previewSrc: "/media/video_1.mp4",
     description: "Emotionally rich wedding reel capturing sacred vows and golden moments.",
     featured: true,
   },
@@ -25,6 +26,7 @@ const works = [
     category: "Event",
     thumbId: "1cfPgteq3LAtzvf-L3O1O6Ik08uv3H69H",
     videoId: "1RaunMYr1zJcJzditskDH_xPbdgIyItJT",
+    previewSrc: "/media/hero_video.mp4",
     description: "High-energy final reel showcasing the iconic Paradox event.",
   },
   {
@@ -33,6 +35,7 @@ const works = [
     category: "Celebration",
     thumbId: "1rTIbERPxMH1Gz42Pdz_IwmcG6PPYvZul",
     videoId: "1KKLsxJmfcbNM6GA8zQxku9i9VQ217-Jp",
+    previewSrc: "/media/video_4.mp4",
     description: "Vibrant highlights from a grand private celebration.",
   },
   {
@@ -41,6 +44,7 @@ const works = [
     category: "Wedding",
     thumbId: "1-y0CGBA2l0R5koU2_m9CZvIlc3_gC3LZ",
     videoId: "1La6s-J0YYnAl4JZqn7CIfvcaptQ5Ctiv",
+    previewSrc: "/media/video_5.mp4",
     description: "Timeless moments from a beautiful wedding celebration.",
   },
   {
@@ -49,6 +53,7 @@ const works = [
     category: "Party",
     thumbId: "19PnMC0L5MGE1tPTXxfz3vZsD9zgJ2CBw",
     videoId: "1opDCgYRZQ4xvIWorXjB5fEdkhpglDZnZ",
+    previewSrc: "/media/video_2.mp4",
     description: "Festive energy captured with cinematic precision.",
   },
   {
@@ -57,6 +62,7 @@ const works = [
     category: "Wedding",
     thumbId: "1b01LnuEnU-4l5Vmnxplqrdo2gQ1oYBzc",
     videoId: "1tvcYX_jVGnfZh9vx4SaGurbs6KD-rd7Z",
+    previewSrc: "/media/video_3.mp4",
     description: "Golden hour wedding memories made eternal.",
   },
 ];
@@ -64,10 +70,36 @@ const works = [
 type Work = typeof works[0];
 
 function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () => void; large?: boolean }) {
+  const cardRef  = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying]   = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  // IntersectionObserver — plays preview when card is ≥40% in view
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        const vid = videoRef.current;
+        if (!vid) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
+          vid.play().then(() => setPlaying(true)).catch(() => {});
+        } else {
+          vid.pause();
+          vid.currentTime = 0;
+          setPlaying(false);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -76,41 +108,54 @@ function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () =
       onClick={onClick}
     >
       <div className={`relative w-full overflow-hidden bg-[#181818] ${large ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
-        {/* Thumbnail */}
+
+        {/* Thumbnail — fades out when video preview starts */}
         {!imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={driveImg(work.thumbId)}
             alt={work.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            referrerPolicy="no-referrer"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${playing ? "opacity-0" : "opacity-100"}`}
             loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : (
-          // Fallback — gradient placeholder
-          <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] flex items-center justify-center">
-            <Play className="text-gold/30" size={48} />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a]" />
         )}
 
-        {/* Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
+        {/* Local muted preview video — autoplays when card scrolls into view */}
+        <video
+          ref={videoRef}
+          src={work.previewSrc}
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${playing ? "opacity-100" : "opacity-0"}`}
+        />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent z-10" />
 
         {/* Category tag */}
-        <span className="absolute top-4 left-4 px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold border border-gold/20">
+        <span className="absolute top-4 left-4 z-20 px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold border border-gold/20">
           {work.category}
         </span>
 
-        {/* Play button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className={`rounded-full bg-white/10 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-[0_0_30px_rgba(201,169,110,0.4)] scale-75 group-hover:scale-100 transition-transform duration-400 ${large ? "w-20 h-20" : "w-14 h-14"}`}>
-            <Play className="text-gold ml-1" size={large ? 30 : 20} fill="currentColor" />
+        {/* Play button — always shown on mobile, hover on desktop */}
+        {!playing && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <div className={`relative rounded-full bg-black/50 backdrop-blur-md border-2 border-gold flex items-center justify-center shadow-[0_0_30px_rgba(201,169,110,0.5)] transition-transform duration-300 group-hover:scale-110 ${large ? "w-20 h-20" : "w-14 h-14"}`}>
+              <Play className="text-gold ml-1" size={large ? 28 : 20} fill="currentColor" />
+              <span className="absolute inset-0 rounded-full border-2 border-gold/30 animate-ping" />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Info */}
-      <div className={`absolute bottom-0 left-0 w-full ${large ? "p-7" : "p-5"}`}>
+      <div className={`absolute bottom-0 left-0 w-full z-20 ${large ? "p-7" : "p-5"}`}>
         <h4 className={`font-semibold text-white drop-shadow-md ${large ? "text-2xl md:text-3xl" : "text-base md:text-lg"}`}>
           {work.title}
         </h4>
@@ -148,7 +193,6 @@ export default function FeaturedWork() {
           </p>
         </motion.div>
 
-        {/* Grid: 1 large + stacked + bottom row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
           <div className="md:col-span-2">
             <VideoCard work={featured} onClick={() => setActiveVideo(featured)} large />

@@ -1,93 +1,42 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
-const SLIDES = [
-  {
-    id: "1KKLsxJmfcbNM6GA8zQxku9i9VQ217-Jp",
-    label: "Celebrations",
-  },
-  {
-    id: "1La6s-J0YYnAl4JZqn7CIfvcaptQ5Ctiv",
-    label: "Weddings",
-  },
-  {
-    id: "1RaunMYr1zJcJzditskDH_xPbdgIyItJT",
-    label: "Events",
-  },
-];
+const VIDEO_ID = "1KKLsxJmfcbNM6GA8zQxku9i9VQ217-Jp";
 
 export default function Hero() {
-  const [current, setCurrent] = useState(0);
-
-  // Cycle every 14 seconds
-  useEffect(() => {
-    const t = setInterval(() => setCurrent((p) => (p + 1) % SLIDES.length), 14000);
-    return () => clearInterval(t);
-  }, []);
-
   return (
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
-      {/* Drive video iframes as background */}
-      {SLIDES.map((slide, i) => (
-        <div
-          key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 pointer-events-none ${i === current ? "opacity-100" : "opacity-0"}`}
-          style={{ zIndex: 1 }}
+      {/* Local video — downloaded from Drive, always loads reliably */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover scale-105"
         >
-          {/*
-            Scale up 130% and shift up: this pushes the Drive UI controls
-            (which appear at bottom of the iframe) below the visible viewport.
-            The top Drive title bar is hidden behind the dark overlay.
-          */}
-          <iframe
-            src={`https://drive.google.com/file/d/${slide.id}/preview?autoplay=1&mute=1`}
-            className="absolute border-0"
-            style={{
-              width: "130%",
-              height: "130%",
-              top: "-8%",
-              left: "-15%",
-            }}
-            allow="autoplay"
-            title={slide.label}
-          />
-        </div>
-      ))}
+          <source src="/media/hero_video.mp4" type="video/mp4" />
+        </video>
+      </div>
 
-      {/* Dark overlay — hides Drive UI controls + improves text contrast */}
+      {/* Dark overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black pointer-events-none"
         style={{ zIndex: 2 }}
       />
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3" style={{ zIndex: 10 }}>
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-500 ${i === current ? "bg-gold w-8" : "bg-white/30 w-2"}`}
-          />
-        ))}
-      </div>
-
-      {/* Main content */}
+      {/* Content */}
       <div className="relative flex flex-col items-center text-center px-6 max-w-5xl mx-auto mt-16" style={{ zIndex: 10 }}>
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={SLIDES[current].label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.4 }}
-            className="inline-block text-xs md:text-sm font-semibold uppercase tracking-[0.4em] text-gold mb-8 border border-gold/30 px-5 py-1.5 rounded-full backdrop-blur-sm bg-gold/5"
-          >
-            {SLIDES[current].label}
-          </motion.span>
-        </AnimatePresence>
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-block text-xs md:text-sm font-semibold uppercase tracking-[0.4em] text-gold mb-8 border border-gold/30 px-5 py-1.5 rounded-full backdrop-blur-sm bg-gold/5"
+        >
+          Celebrations
+        </motion.span>
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
