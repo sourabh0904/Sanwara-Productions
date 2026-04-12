@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeaturedWork from "@/components/FeaturedWork";
+import Gallery from "@/components/Gallery";
 import SignatureFilm from "@/components/SignatureFilm";
 import About from "@/components/About";
 import Testimonials from "@/components/Testimonials";
@@ -14,6 +15,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <FeaturedWork />
+      <Gallery />
       <SignatureFilm />
       <About />
       <Testimonials />
@@ -23,3 +25,4 @@ export default function Home() {
     </main>
   );
 }
+

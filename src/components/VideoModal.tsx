@@ -72,15 +72,17 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title, descripti
                 controls
                 autoPlay
                 playsInline
-                className="w-full max-h-[72vh] object-contain bg-black"
+                className="w-full max-h-[70vh] object-contain bg-black"
               />
             ) : (
-              <div className="relative w-full pt-[56.25%] bg-black">
+              // Google Drive or YouTube iframe
+              <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
                 <iframe
-                  src={`${videoUrl}?autoplay=1&rel=0&modestbranding=1`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  src={videoUrl}
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="autoplay; fullscreen; picture-in-picture"
                   allowFullScreen
+                  title={title}
                 />
               </div>
             )}

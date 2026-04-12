@@ -2,10 +2,10 @@
 
 @theme inline {
   --color-gold: #C9A96E;
+  --color-gold-light: #e8c97a;
+  --color-gold-dark: #b8892e;
   --color-background: #0B0B0B;
   --color-foreground: #FFFFFF;
-  
-  /* Font families */
   --font-sans: var(--font-outfit), sans-serif;
 }
 
@@ -19,3 +19,31 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Offset section anchors so they don't hide under the fixed navbar */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* Custom gold scrollbar (desktop) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0B0B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9A96E55;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A96Eaa;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid #C9A96E;
+  outline-offset: 3px;
+}

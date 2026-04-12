@@ -1,213 +1,175 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play, X } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { Play } from "lucide-react";
+import { useState } from "react";
 import VideoModal from "./VideoModal";
+
+// lh3.googleusercontent.com/d/ID = Google's own CDN for public Drive files
+const driveImg = (id: string) => `https://lh3.googleusercontent.com/d/${id}`;
+const drivePreview = (id: string) => `https://drive.google.com/file/d/${id}/preview`;
 
 const works = [
   {
     id: 1,
-    title: "Ethereal Romance",
-    category: "Wedding",
-    thumbnail: "/media/image_16.jpeg",
-    videoUrl: "/media/video_1.mp4",
-    description: "A beautiful destination wedding captured with a cinematic narrative."
+    title: "Ram Ji Reel",
+    category: "Sacred Wedding",
+    thumbId: "1P05rn6AgZCJ6ZHqMNq8vjvJ6RX73Idbt",
+    videoId: "1zk2mYPtKpSOZ-Rnw60zzL1OfAO3tayQ9",
+    description: "Emotionally rich wedding reel capturing sacred vows and golden moments.",
+    featured: true,
   },
   {
     id: 2,
-    title: "Global Summit 2025",
-    category: "Corporate",
-    thumbnail: "/media/image_12.jpeg",
-    videoUrl: "/media/video_2.mp4",
-    description: "High-energy corporate overview blending interviews with dynamic b-roll."
+    title: "Paradox Final Reel",
+    category: "Event",
+    thumbId: "1cfPgteq3LAtzvf-L3O1O6Ik08uv3H69H",
+    videoId: "1RaunMYr1zJcJzditskDH_xPbdgIyItJT",
+    description: "High-energy final reel showcasing the iconic Paradox event.",
   },
   {
     id: 3,
-    title: "Neon Nights",
-    category: "Party",
-    thumbnail: "/media/image_13.jpeg",
-    videoUrl: "/media/video_4.mp4",
-    description: "A vibrant luxury private event covered with state-of-the-art low-light technology."
+    title: "Event Highlights",
+    category: "Celebration",
+    thumbId: "1rTIbERPxMH1Gz42Pdz_IwmcG6PPYvZul",
+    videoId: "1KKLsxJmfcbNM6GA8zQxku9i9VQ217-Jp",
+    description: "Vibrant highlights from a grand private celebration.",
   },
   {
     id: 4,
-    title: "A Timeless Vow",
+    title: "Timeless Celebration",
     category: "Wedding",
-    thumbnail: "/media/image_14.jpeg",
-    videoUrl: "/media/video_5.mp4",
-    description: "Intimate vows set against a majestic mountain backdrop."
+    thumbId: "1-y0CGBA2l0R5koU2_m9CZvIlc3_gC3LZ",
+    videoId: "1La6s-J0YYnAl4JZqn7CIfvcaptQ5Ctiv",
+    description: "Timeless moments from a beautiful wedding celebration.",
   },
   {
     id: 5,
-    title: "Brand Anthem",
-    category: "Commercial",
-    thumbnail: "/media/image_18.jpeg",
-    videoUrl: "/media/video_2.mp4",
-    description: "A fast-paced commercial piece driving brand energy."
+    title: "Festive Nights",
+    category: "Party",
+    thumbId: "19PnMC0L5MGE1tPTXxfz3vZsD9zgJ2CBw",
+    videoId: "1opDCgYRZQ4xvIWorXjB5fEdkhpglDZnZ",
+    description: "Festive energy captured with cinematic precision.",
   },
   {
     id: 6,
-    title: "Golden Hour Engagement",
+    title: "Golden Hour",
     category: "Wedding",
-    thumbnail: "/media/image_17.jpeg",
-    videoUrl: "/media/video_1.mp4",
-    description: "Soft, golden hour aesthetics for a perfect couple's memory."
-  }
+    thumbId: "1b01LnuEnU-4l5Vmnxplqrdo2gQ1oYBzc",
+    videoId: "1tvcYX_jVGnfZh9vx4SaGurbs6KD-rd7Z",
+    description: "Golden hour wedding memories made eternal.",
+  },
 ];
 
 type Work = typeof works[0];
 
-function WorkCard({ work, onClick }: { work: Work; onClick: () => void }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // Auto-play when card scrolls into view using IntersectionObserver
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!videoRef.current) return;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-        } else {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
-          setIsPlaying(false);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, []);
-
-  const stopPreview = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-    setIsPlaying(false);
-  };
+function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () => void; large?: boolean }) {
+  const [imgError, setImgError] = useState(false);
 
   return (
     <motion.div
-      ref={cardRef}
-      variants={{
-        hidden: { opacity: 0, y: 30 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-      }}
-      className="group relative rounded-xl overflow-hidden cursor-pointer bg-[#111]"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="group relative overflow-hidden rounded-2xl cursor-pointer bg-[#181818]"
       onClick={onClick}
     >
-      {/* Thumbnail — fades out when video plays */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden">
-        <Image
-          src={work.thumbnail}
-          alt={work.title}
-          fill
-          className={`object-cover transition-opacity duration-700 z-10 relative ${isPlaying ? "opacity-0" : "opacity-100"}`}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-
-        {/* Muted looping preview video */}
-        <video
-          ref={videoRef}
-          src={work.videoUrl}
-          muted
-          playsInline
-          loop
-          preload="metadata"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isPlaying ? "opacity-100" : "opacity-0"}`}
-        />
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-70 z-20" />
-
-        {/* Play button — shown when NOT playing */}
-        {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center z-30">
-            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-[0_0_20px_rgba(201,169,110,0.4)]">
-              <Play className="text-gold ml-1" size={22} fill="currentColor" />
-            </div>
+      <div className={`relative w-full overflow-hidden bg-[#181818] ${large ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
+        {/* Thumbnail */}
+        {!imgError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={driveImg(work.thumbId)}
+            alt={work.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          // Fallback — gradient placeholder
+          <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] flex items-center justify-center">
+            <Play className="text-gold/30" size={48} />
           </div>
         )}
 
-        {/* Dismiss (✕) button — shown on mobile when video IS playing */}
-        {isPlaying && (
-          <button
-            onClick={stopPreview}
-            className="absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-black/70 backdrop-blur-md flex items-center justify-center border border-white/20 text-white hover:bg-gold hover:text-black transition-all duration-200 shadow-lg"
-            aria-label="Stop preview"
-          >
-            <X size={16} />
-          </button>
-        )}
-      </div>
+        {/* Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
 
-      {/* Card info */}
-      <div className="absolute bottom-0 left-0 w-full p-5 z-30">
-        <span className="inline-block px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold mb-2 border border-gold/20">
+        {/* Category tag */}
+        <span className="absolute top-4 left-4 px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold border border-gold/20">
           {work.category}
         </span>
-        <h4 className="text-lg md:text-xl font-semibold text-white drop-shadow-md">
+
+        {/* Play button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className={`rounded-full bg-white/10 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-[0_0_30px_rgba(201,169,110,0.4)] scale-75 group-hover:scale-100 transition-transform duration-400 ${large ? "w-20 h-20" : "w-14 h-14"}`}>
+            <Play className="text-gold ml-1" size={large ? 30 : 20} fill="currentColor" />
+          </div>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className={`absolute bottom-0 left-0 w-full ${large ? "p-7" : "p-5"}`}>
+        <h4 className={`font-semibold text-white drop-shadow-md ${large ? "text-2xl md:text-3xl" : "text-base md:text-lg"}`}>
           {work.title}
         </h4>
+        {large && (
+          <p className="text-white/55 text-sm mt-2 font-light max-w-lg">{work.description}</p>
+        )}
       </div>
     </motion.div>
   );
 }
 
 export default function FeaturedWork() {
-  const [activeVideo, setActiveVideo] = useState<typeof works[0] | null>(null);
-
-  const containerVariants: any = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.15 } }
-  };
+  const [activeVideo, setActiveVideo] = useState<Work | null>(null);
+  const [featured, ...rest] = works;
 
   return (
-    <section id="portfolio" className="py-24 bg-[#0B0B0B] relative z-20">
+    <section id="portfolio" className="py-28 bg-[#0B0B0B] relative z-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-16 flex flex-col items-center md:items-start text-center md:text-left"
+          className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
         >
-          <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gold mb-4">Our Portfolio</h2>
-          <h3 className="text-3xl md:text-5xl font-bold text-white">Featured Masterpieces</h3>
-          <div className="w-24 h-1 bg-gold mt-8 rounded-full hidden md:block" />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gold mb-3">Our Portfolio</p>
+            <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              Featured<br />
+              <span className="italic font-light text-white/60">Masterpieces</span>
+            </h2>
+          </div>
+          <p className="text-white/50 text-base font-light max-w-xs md:text-right">
+            Each film is a handcrafted story — told with intention, artistry, and heart.
+          </p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
-        >
-          {works.map((work) => (
-            <WorkCard
-              key={work.id}
-              work={work}
-              onClick={() => setActiveVideo(work)}
-            />
-          ))}
-        </motion.div>
+        {/* Grid: 1 large + stacked + bottom row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+          <div className="md:col-span-2">
+            <VideoCard work={featured} onClick={() => setActiveVideo(featured)} large />
+          </div>
+          <div className="flex flex-col gap-4 lg:gap-5">
+            {rest.slice(0, 2).map((w) => (
+              <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
+            ))}
+          </div>
+          <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+            {rest.slice(2).map((w) => (
+              <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
+            ))}
+          </div>
+        </div>
       </div>
 
       <VideoModal
         isOpen={!!activeVideo}
         onClose={() => setActiveVideo(null)}
-        videoUrl={activeVideo?.videoUrl || ""}
+        videoUrl={activeVideo ? drivePreview(activeVideo.videoId) : ""}
         title={activeVideo?.title}
         description={activeVideo?.description}
       />
