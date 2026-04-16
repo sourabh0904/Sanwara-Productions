@@ -5,17 +5,17 @@ import { Play } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import VideoModal from "./VideoModal";
 
-const driveImg     = (id: string) => `https://lh3.googleusercontent.com/d/${id}`;
 const drivePreview = (id: string) => `https://drive.google.com/file/d/${id}/preview`;
 
+// thumbTime: which second to freeze on as the thumbnail (adjust per video)
 const works = [
   {
     id: 1,
     title: "Ram Ji Reel",
     category: "Sacred Wedding",
-    thumbId: "1P05rn6AgZCJ6ZHqMNq8vjvJ6RX73Idbt",
     videoId: "1zk2mYPtKpSOZ-Rnw60zzL1OfAO3tayQ9",
     previewSrc: "/media/video_1.mp4",
+    thumbTime: 1,
     description: "Emotionally rich wedding reel capturing sacred vows and golden moments.",
     featured: true,
   },
@@ -23,52 +23,51 @@ const works = [
     id: 2,
     title: "Paradox Final Reel",
     category: "Event",
-    thumbId: "1cfPgteq3LAtzvf-L3O1O6Ik08uv3H69H",
     videoId: "1RaunMYr1zJcJzditskDH_xPbdgIyItJT",
     previewSrc: "/media/hero_video.mp4",
+    thumbTime: 1,
     description: "High-energy final reel showcasing the iconic Paradox event.",
   },
   {
     id: 3,
     title: "Event Highlights",
     category: "Celebration",
-    thumbId: "1rTIbERPxMH1Gz42Pdz_IwmcG6PPYvZul",
     videoId: "1KKLsxJmfcbNM6GA8zQxku9i9VQ217-Jp",
     previewSrc: "/media/video_4.mp4",
+    thumbTime: 1,
     description: "Vibrant highlights from a grand private celebration.",
   },
   {
     id: 4,
     title: "Timeless Celebration",
     category: "Wedding",
-    thumbId: "1-y0CGBA2l0R5koU2_m9CZvIlc3_gC3LZ",
     videoId: "1La6s-J0YYnAl4JZqn7CIfvcaptQ5Ctiv",
     previewSrc: "/media/video_5.mp4",
+    thumbTime: 1,
     description: "Timeless moments from a beautiful wedding celebration.",
   },
   {
     id: 5,
     title: "Festive Nights",
     category: "Party",
-    thumbId: "19PnMC0L5MGE1tPTXxfz3vZsD9zgJ2CBw",
     videoId: "1opDCgYRZQ4xvIWorXjB5fEdkhpglDZnZ",
     previewSrc: "/media/video_2.mp4",
+    thumbTime: 1,
     description: "Festive energy captured with cinematic precision.",
   },
   {
     id: 6,
     title: "Golden Hour",
     category: "Wedding",
-    thumbId: "1b01LnuEnU-4l5Vmnxplqrdo2gQ1oYBzc",
     videoId: "1tvcYX_jVGnfZh9vx4SaGurbs6KD-rd7Z",
     previewSrc: "/media/video_3.mp4",
+    thumbTime: 1,
     description: "Golden hour wedding memories made eternal.",
   },
 ];
 
 type Work = typeof works[0];
 
-/** Shared card inner — used by both desktop and mobile layouts */
 function VideoCard({
   work,
   onClick,
@@ -82,12 +81,20 @@ function VideoCard({
 }) {
   const cardRef  = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying]   = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  const t = work.thumbTime ?? 1;
+
+  // Seek to thumbTime once metadata is loaded so the right frame shows as thumbnail
+  const handleMetadata = () => {
+    const vid = videoRef.current;
+    if (vid && !playing) vid.currentTime = t;
+  };
 
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
+
     const obs = new IntersectionObserver(
       ([entry]) => {
         const vid = videoRef.current;
@@ -96,7 +103,7 @@ function VideoCard({
           vid.play().then(() => setPlaying(true)).catch(() => {});
         } else {
           vid.pause();
-          vid.currentTime = 0;
+          vid.currentTime = t; // return to thumbnail frame when out of view
           setPlaying(false);
         }
       },
@@ -104,6 +111,7 @@ function VideoCard({
     );
     obs.observe(el);
     return () => obs.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const aspect = aspectClass || (large ? "aspect-[16/9]" : "aspect-[4/3]");
@@ -120,24 +128,7 @@ function VideoCard({
     >
       <div className={`relative w-full overflow-hidden bg-[#141414] ${aspect}`}>
 
-        {/* Thumbnail */}
-        {!imgError ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={driveImg(work.thumbId)}
-            alt={work.title}
-            referrerPolicy="no-referrer"
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.04] ${
-              playing ? "opacity-0" : "opacity-100"
-            }`}
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#222]" />
-        )}
-
-        {/* Preview video */}
+        {/* Video — always rendered; shows a real frame at 1 s when paused */}
         <video
           ref={videoRef}
           src={work.previewSrc}
@@ -145,20 +136,19 @@ function VideoCard({
           playsInline
           loop
           preload="metadata"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-            playing ? "opacity-100" : "opacity-0"
-          }`}
+          onLoadedMetadata={handleMetadata}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
         />
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent z-10" />
 
-        {/* Category */}
+        {/* Category tag */}
         <span className="absolute top-4 left-4 z-20 px-3 py-1 bg-black/55 backdrop-blur-md rounded-full text-[10px] font-medium tracking-[0.18em] uppercase text-gold border border-gold/20">
           {work.category}
         </span>
 
-        {/* Play button */}
+        {/* Play button — visible when paused */}
         {!playing && (
           <div className="absolute inset-0 z-20 flex items-center justify-center">
             <div
@@ -193,7 +183,7 @@ function VideoCard({
         )}
       </div>
 
-      {/* Border glow on hover */}
+      {/* Border glow */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-white/5 group-hover:ring-gold/18 transition-all duration-500 pointer-events-none z-30" />
     </motion.div>
   );
@@ -235,17 +225,14 @@ export default function FeaturedWork() {
 
         {/* ── DESKTOP LAYOUT (md+) ── */}
         <div className="hidden md:grid grid-cols-3 gap-3 lg:gap-4">
-          {/* Featured — 2/3 wide */}
           <div className="col-span-2">
             <VideoCard work={featured} onClick={() => setActiveVideo(featured)} large />
           </div>
-          {/* Right column — 2 stacked */}
           <div className="flex flex-col gap-3 lg:gap-4">
             {rest.slice(0, 2).map((w) => (
               <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
             ))}
           </div>
-          {/* Bottom row — 3 equal */}
           <div className="col-span-3 grid grid-cols-3 gap-3 lg:gap-4">
             {rest.slice(2).map((w) => (
               <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
@@ -255,7 +242,6 @@ export default function FeaturedWork() {
 
         {/* ── MOBILE LAYOUT ── */}
         <div className="md:hidden flex flex-col gap-3">
-          {/* Featured card — full width */}
           <VideoCard
             work={featured}
             onClick={() => setActiveVideo(featured)}
@@ -263,31 +249,18 @@ export default function FeaturedWork() {
             aspectClass="aspect-video"
           />
 
-          {/* Horizontal scroll strip */}
           <div className="relative">
-            {/* Fade hint right edge */}
             <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0B0B0B] to-transparent z-10 pointer-events-none rounded-r-2xl" />
-            <div
-              className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-1 -mx-4 px-4"
-            >
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-1 -mx-4 px-4">
               {rest.map((w) => (
-                <div
-                  key={w.id}
-                  className="shrink-0 w-[72vw] snap-start"
-                >
-                  <VideoCard
-                    work={w}
-                    onClick={() => setActiveVideo(w)}
-                    aspectClass="aspect-[4/3]"
-                  />
+                <div key={w.id} className="shrink-0 w-[72vw] snap-start">
+                  <VideoCard work={w} onClick={() => setActiveVideo(w)} aspectClass="aspect-[4/3]" />
                 </div>
               ))}
-              {/* Trailing spacer so last card isn't clipped */}
               <div className="shrink-0 w-4" />
             </div>
           </div>
 
-          {/* Scroll hint */}
           <p className="text-center text-white/25 text-[10px] font-light tracking-[0.25em] uppercase mt-1">
             Swipe to explore more
           </p>

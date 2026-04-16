@@ -20,6 +20,7 @@ export default function Hero() {
       </div>
 
       {/* Background video — overlays the image once playing */}
+      {/* blur(2px) softens compression artefacts; scale-110 compensates for blur edges */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2 }}>
         <video
           autoPlay
@@ -27,18 +28,36 @@ export default function Hero() {
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover scale-105"
+          className="w-full h-full object-cover scale-110"
+          style={{ filter: "blur(2px)" }}
         >
           <source src="/media/hero_video.mp4" type="video/mp4" />
         </video>
       </div>
 
-      {/* Cinematic overlay */}
+      {/* Cinematic overlay — slightly darker to further mask quality */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-transparent to-black" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25" />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+        {/* Radial vignette — pulls focus to centre, hides edges */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)" }}
+        />
       </div>
+
+      {/* Film grain — masks pixelation and gives a premium cinematic texture */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 4,
+          opacity: 0.045,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+          backgroundSize: "200px 200px",
+        }}
+      />
 
       {/* Content */}
       <div className="relative flex flex-col items-center text-center px-6 max-w-5xl mx-auto mt-16" style={{ zIndex: 10 }}>

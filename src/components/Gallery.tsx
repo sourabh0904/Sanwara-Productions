@@ -4,23 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, ImageOff, ZoomIn } from "lucide-react";
 
+// Verified unique via SHA-256 hash comparison (scripts/find-duplicate-images.mjs).
+// 6 portfolio thumbnails + 6 content-identical duplicates removed = 22 unique photos.
 const IMAGE_IDS = [
-  "1P05rn6AgZCJ6ZHqMNq8vjvJ6RX73Idbt",
-  "1cfPgteq3LAtzvf-L3O1O6Ik08uv3H69H",
-  "1rTIbERPxMH1Gz42Pdz_IwmcG6PPYvZul",
-  "1-y0CGBA2l0R5koU2_m9CZvIlc3_gC3LZ",
-  "19PnMC0L5MGE1tPTXxfz3vZsD9zgJ2CBw",
-  "1b01LnuEnU-4l5Vmnxplqrdo2gQ1oYBzc",
   "1XFqgDdIBylhWNrG-3ol0fyM2ONqABBAN",
-  "1wWBsHQ00ZopG5BJ45RgV3Cqo61Nd7szm",
-  "1xQigb0Hm8LCOAHPd9f7R2yJk_P9ptNsg",
   "1paXC3mHYAWgHUkKV9zOz5elN0mBVh4tj",
-  "1rHBN7yMWnMLAdLqErkA7BltKJh8c0W4t",
-  "1yeOWKDUahz1lBRLMDrz9lY6ljbRrwBJ3",
   "1OLxsmonkvsion4-v1qSkPLjSg9d5yjrV",
-  "1tG_7ok3_p76-uwddrgw40acxoyET4fw5",
   "1-6iDdZrFBvg6XsHEMK-vbrtzj1Jtrg8P",
-  "1N2cNESE3F1fXmmquIQ0Vds18kvDgaKnb",
   "1_SHKC7oK8U24To120ZsF7jUD-6AfnAAE",
   "1ORPNIgWI6Uu9RVFp7_ZibwAE5v6O5Vu_",
   "1NpfkJiytU89Zpg0Mup7GBGKSlQYAXV_Z",
