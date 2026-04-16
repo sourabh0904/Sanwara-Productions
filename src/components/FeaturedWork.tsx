@@ -15,7 +15,6 @@ const works = [
     category: "Sacred Wedding",
     thumbId: "1P05rn6AgZCJ6ZHqMNq8vjvJ6RX73Idbt",
     videoId: "1zk2mYPtKpSOZ-Rnw60zzL1OfAO3tayQ9",
-    // local preview — muted autoplay works on all devices
     previewSrc: "/media/video_1.mp4",
     description: "Emotionally rich wedding reel capturing sacred vows and golden moments.",
     featured: true,
@@ -69,13 +68,23 @@ const works = [
 
 type Work = typeof works[0];
 
-function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () => void; large?: boolean }) {
+/** Shared card inner — used by both desktop and mobile layouts */
+function VideoCard({
+  work,
+  onClick,
+  large = false,
+  aspectClass = "",
+}: {
+  work: Work;
+  onClick: () => void;
+  large?: boolean;
+  aspectClass?: string;
+}) {
   const cardRef  = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying]   = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  // IntersectionObserver — plays preview when card is ≥40% in view
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -97,34 +106,38 @@ function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () =
     return () => obs.disconnect();
   }, []);
 
+  const aspect = aspectClass || (large ? "aspect-[16/9]" : "aspect-[4/3]");
+
   return (
     <motion.div
       ref={cardRef}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="group relative overflow-hidden rounded-2xl cursor-pointer bg-[#181818]"
+      className="group relative overflow-hidden rounded-2xl cursor-pointer bg-[#141414] w-full h-full"
       onClick={onClick}
     >
-      <div className={`relative w-full overflow-hidden bg-[#181818] ${large ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
+      <div className={`relative w-full overflow-hidden bg-[#141414] ${aspect}`}>
 
-        {/* Thumbnail — fades out when video preview starts */}
+        {/* Thumbnail */}
         {!imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={driveImg(work.thumbId)}
             alt={work.title}
             referrerPolicy="no-referrer"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${playing ? "opacity-0" : "opacity-100"}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.04] ${
+              playing ? "opacity-0" : "opacity-100"
+            }`}
             loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#222]" />
         )}
 
-        {/* Local muted preview video — autoplays when card scrolls into view */}
+        {/* Preview video */}
         <video
           ref={videoRef}
           src={work.previewSrc}
@@ -132,37 +145,56 @@ function VideoCard({ work, onClick, large = false }: { work: Work; onClick: () =
           playsInline
           loop
           preload="metadata"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${playing ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+            playing ? "opacity-100" : "opacity-0"
+          }`}
         />
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-transparent z-10" />
 
-        {/* Category tag */}
-        <span className="absolute top-4 left-4 z-20 px-3 py-1 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium tracking-wider text-gold border border-gold/20">
+        {/* Category */}
+        <span className="absolute top-4 left-4 z-20 px-3 py-1 bg-black/55 backdrop-blur-md rounded-full text-[10px] font-medium tracking-[0.18em] uppercase text-gold border border-gold/20">
           {work.category}
         </span>
 
-        {/* Play button — always shown on mobile, hover on desktop */}
+        {/* Play button */}
         {!playing && (
           <div className="absolute inset-0 z-20 flex items-center justify-center">
-            <div className={`relative rounded-full bg-black/50 backdrop-blur-md border-2 border-gold flex items-center justify-center shadow-[0_0_30px_rgba(201,169,110,0.5)] transition-transform duration-300 group-hover:scale-110 ${large ? "w-20 h-20" : "w-14 h-14"}`}>
-              <Play className="text-gold ml-1" size={large ? 28 : 20} fill="currentColor" />
-              <span className="absolute inset-0 rounded-full border-2 border-gold/30 animate-ping" />
+            <div
+              className={`relative rounded-full bg-black/40 backdrop-blur-sm border border-gold/50 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-gold group-hover:border-gold group-hover:shadow-[0_0_40px_rgba(201,169,110,0.5)] ${
+                large ? "w-[72px] h-[72px]" : "w-12 h-12 sm:w-14 sm:h-14"
+              }`}
+            >
+              <Play
+                className="text-gold group-hover:text-black ml-1 transition-colors duration-300"
+                size={large ? 24 : 16}
+                fill="currentColor"
+              />
+              <span className="absolute inset-0 rounded-full border border-gold/25 animate-ping" />
             </div>
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className={`absolute bottom-0 left-0 w-full z-20 ${large ? "p-7" : "p-5"}`}>
-        <h4 className={`font-semibold text-white drop-shadow-md ${large ? "text-2xl md:text-3xl" : "text-base md:text-lg"}`}>
+      <div className={`absolute bottom-0 left-0 w-full z-20 ${large ? "p-6 md:p-7" : "p-4 md:p-5"}`}>
+        <h4
+          className={`font-semibold text-white drop-shadow-md leading-tight ${
+            large ? "text-xl md:text-2xl lg:text-3xl" : "text-sm md:text-base"
+          }`}
+        >
           {work.title}
         </h4>
         {large && (
-          <p className="text-white/55 text-sm mt-2 font-light max-w-lg">{work.description}</p>
+          <p className="text-white/40 text-xs md:text-sm mt-1.5 font-light max-w-sm leading-relaxed hidden sm:block">
+            {work.description}
+          </p>
         )}
       </div>
+
+      {/* Border glow on hover */}
+      <div className="absolute inset-0 rounded-2xl ring-1 ring-white/5 group-hover:ring-gold/18 transition-all duration-500 pointer-events-none z-30" />
     </motion.div>
   );
 }
@@ -172,41 +204,93 @@ export default function FeaturedWork() {
   const [featured, ...rest] = works;
 
   return (
-    <section id="portfolio" className="py-28 bg-[#0B0B0B] relative z-20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section id="portfolio" className="py-24 md:py-28 bg-[#0B0B0B] relative z-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12">
+
+        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
+          className="mb-10 md:mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-4"
         >
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gold mb-3">Our Portfolio</p>
-            <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-px bg-gold/60" />
+              <p className="text-xs font-medium uppercase tracking-[0.4em] text-gold">Our Portfolio</p>
+            </div>
+            <h2
+              className="text-4xl md:text-6xl lg:text-7xl font-light text-white leading-[1.05]"
+              style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
+            >
               Featured<br />
-              <span className="italic font-light text-white/60">Masterpieces</span>
+              <em className="italic font-semibold">Masterpieces</em>
             </h2>
           </div>
-          <p className="text-white/50 text-base font-light max-w-xs md:text-right">
+          <p className="text-white/35 text-sm font-light max-w-xs md:text-right leading-relaxed hidden md:block">
             Each film is a handcrafted story — told with intention, artistry, and heart.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
-          <div className="md:col-span-2">
+        {/* ── DESKTOP LAYOUT (md+) ── */}
+        <div className="hidden md:grid grid-cols-3 gap-3 lg:gap-4">
+          {/* Featured — 2/3 wide */}
+          <div className="col-span-2">
             <VideoCard work={featured} onClick={() => setActiveVideo(featured)} large />
           </div>
-          <div className="flex flex-col gap-4 lg:gap-5">
+          {/* Right column — 2 stacked */}
+          <div className="flex flex-col gap-3 lg:gap-4">
             {rest.slice(0, 2).map((w) => (
               <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
             ))}
           </div>
-          <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+          {/* Bottom row — 3 equal */}
+          <div className="col-span-3 grid grid-cols-3 gap-3 lg:gap-4">
             {rest.slice(2).map((w) => (
               <VideoCard key={w.id} work={w} onClick={() => setActiveVideo(w)} />
             ))}
           </div>
+        </div>
+
+        {/* ── MOBILE LAYOUT ── */}
+        <div className="md:hidden flex flex-col gap-3">
+          {/* Featured card — full width */}
+          <VideoCard
+            work={featured}
+            onClick={() => setActiveVideo(featured)}
+            large
+            aspectClass="aspect-video"
+          />
+
+          {/* Horizontal scroll strip */}
+          <div className="relative">
+            {/* Fade hint right edge */}
+            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0B0B0B] to-transparent z-10 pointer-events-none rounded-r-2xl" />
+            <div
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-1 -mx-4 px-4"
+            >
+              {rest.map((w) => (
+                <div
+                  key={w.id}
+                  className="shrink-0 w-[72vw] snap-start"
+                >
+                  <VideoCard
+                    work={w}
+                    onClick={() => setActiveVideo(w)}
+                    aspectClass="aspect-[4/3]"
+                  />
+                </div>
+              ))}
+              {/* Trailing spacer so last card isn't clipped */}
+              <div className="shrink-0 w-4" />
+            </div>
+          </div>
+
+          {/* Scroll hint */}
+          <p className="text-center text-white/25 text-[10px] font-light tracking-[0.25em] uppercase mt-1">
+            Swipe to explore more
+          </p>
         </div>
       </div>
 
