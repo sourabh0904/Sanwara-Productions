@@ -20,11 +20,9 @@ export default function Navbar() {
   const [activeSection,    setActiveSection]    = useState("#");
 
   useEffect(() => {
-    // Scroll-based background
     const onScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    // Active-section via IntersectionObserver
     const sectionIds = ["portfolio", "gallery", "about", "contact"];
     const observers: IntersectionObserver[] = [];
 
@@ -50,46 +48,45 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y:  0   }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-400 ${
         isScrolled
-          ? "bg-black/85 backdrop-blur-md py-3 shadow-lg shadow-black/50"
+          ? "bg-black/88 backdrop-blur-xl py-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
           : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Logo */}
-        <Link href="#" onClick={() => setActiveSection("#")} className="flex items-center group">
-          <div className="relative w-40 h-10 md:w-[200px] md:h-[52px] shrink-0 hover:scale-105 transition-transform duration-300">
+        <Link href="#" onClick={() => setActiveSection("#")} className="flex items-center">
+          <div className="relative w-36 h-9 md:w-[190px] md:h-[48px] shrink-0 hover:opacity-80 transition-opacity duration-300">
             <Image
               src="/media/logo.png"
               alt="Sanwara Productions"
               fill
-              className="object-contain object-left md:object-center"
+              className="object-contain object-left"
               priority
             />
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-7 text-sm font-medium tracking-wide">
+        <div className="hidden md:flex items-center gap-7 text-sm font-light tracking-[0.08em]">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setActiveSection(link.href)}
               className={`relative py-1 transition-colors duration-300 ${
-                isActive(link.href) ? "text-gold" : "text-white/70 hover:text-white"
+                isActive(link.href) ? "text-gold" : "text-white/60 hover:text-white"
               }`}
             >
               {link.name}
-              {/* Active underline */}
               {isActive(link.href) && (
                 <motion.span
                   layoutId="nav-underline"
-                  className="absolute -bottom-0.5 left-0 right-0 h-[2px] bg-gold rounded-full"
+                  className="absolute -bottom-0.5 left-0 right-0 h-px bg-gold rounded-full"
                 />
               )}
             </Link>
@@ -97,7 +94,7 @@ export default function Navbar() {
           <Link
             href="#contact"
             onClick={() => setActiveSection("#contact")}
-            className="px-5 py-2.5 rounded-full border border-gold text-gold text-xs tracking-wider hover:bg-gold hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(201,169,110,0.1)] hover:shadow-[0_0_20px_rgba(201,169,110,0.4)]"
+            className="px-5 py-2 rounded-full border border-gold/60 text-gold text-xs tracking-[0.15em] hover:bg-gold hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(201,169,110,0.08)] hover:shadow-[0_0_25px_rgba(201,169,110,0.3)]"
           >
             Book Now
           </Link>
@@ -111,14 +108,14 @@ export default function Navbar() {
         >
           <AnimatePresence mode="wait">
             {isMobileMenuOpen
-              ? <motion.div key="x"    initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}><X    size={26} /></motion.div>
-              : <motion.div key="menu" initial={{ rotate:  90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate:-90, opacity: 0 }} transition={{ duration: 0.2 }}><Menu size={26} /></motion.div>
+              ? <motion.div key="x"    initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}><X    size={24} /></motion.div>
+              : <motion.div key="menu" initial={{ rotate:  90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate:-90, opacity: 0 }} transition={{ duration: 0.2 }}><Menu size={24} /></motion.div>
             }
           </AnimatePresence>
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* Mobile dropdown */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -126,7 +123,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden overflow-hidden bg-black/97 backdrop-blur-xl border-t border-white/10"
+            className="md:hidden overflow-hidden bg-black/97 backdrop-blur-xl border-t border-white/8"
           >
             <div className="flex flex-col items-center gap-5 py-8">
               {navLinks.map((link) => (
@@ -134,8 +131,8 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => { setIsMobileMenuOpen(false); setActiveSection(link.href); }}
-                  className={`text-lg transition-colors duration-300 ${
-                    isActive(link.href) ? "text-gold font-semibold" : "text-white/80 hover:text-gold"
+                  className={`text-base tracking-[0.05em] transition-colors duration-300 ${
+                    isActive(link.href) ? "text-gold font-medium" : "text-white/65 hover:text-gold"
                   }`}
                 >
                   {link.name}
@@ -144,7 +141,7 @@ export default function Navbar() {
               <Link
                 href="#contact"
                 onClick={() => { setIsMobileMenuOpen(false); setActiveSection("#contact"); }}
-                className="mt-2 px-8 py-3 rounded-full border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 text-sm tracking-wider"
+                className="mt-1 px-8 py-3 rounded-full border border-gold/60 text-gold hover:bg-gold hover:text-black transition-all duration-300 text-sm tracking-[0.12em]"
               >
                 Book Now
               </Link>

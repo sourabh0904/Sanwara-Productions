@@ -7,12 +7,16 @@
   --color-background: #0B0B0B;
   --color-foreground: #FFFFFF;
   --font-sans: var(--font-outfit), sans-serif;
+  --font-display: var(--font-cormorant), Georgia, serif;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html {
@@ -26,7 +30,7 @@ section[id] {
 
 /* Custom gold scrollbar (desktop) */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -34,7 +38,7 @@ section[id] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C9A96E55;
+  background: #C9A96E44;
   border-radius: 999px;
 }
 
@@ -46,4 +50,23 @@ section[id] {
 :focus-visible {
   outline: 2px solid #C9A96E;
   outline-offset: 3px;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Premium input styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #0d0d0d inset;
+  -webkit-text-fill-color: #ffffff;
+  transition: background-color 5000s ease-in-out 0s;
 }
