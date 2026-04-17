@@ -68,7 +68,7 @@ section[id] {
   }
 }
 
-/* Instagram Reels marquee */
+/* Instagram Reels marquee (mobile) */
 @keyframes marquee-left {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -81,6 +81,20 @@ section[id] {
 .marquee-right { animation: marquee-right var(--marquee-dur, 65s) linear infinite; }
 .marquee-left:hover,
 .marquee-right:hover { animation-play-state: paused; }
+
+/* Instagram Reels wall (desktop) */
+@keyframes wall-up {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+@keyframes wall-down {
+  0%   { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+.wall-up   { animation: wall-up   var(--wall-dur, 160s) linear infinite; }
+.wall-down { animation: wall-down var(--wall-dur, 160s) linear infinite; }
+.wall-up:hover,
+.wall-down:hover { animation-play-state: paused; }
 
 /* Premium input styles */
 input:-webkit-autofill,

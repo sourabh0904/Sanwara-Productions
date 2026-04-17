@@ -16,9 +16,9 @@ export default function Home() {
       <Navbar />
       <Hero />
       <FeaturedWork />
+      <InstagramReels />
       <Gallery />
       <SignatureFilm />
-      <InstagramReels />
       <About />
       <Testimonials />
       <CTA />
