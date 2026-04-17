@@ -138,8 +138,8 @@ export default function Gallery() {
   const touchStartX = useRef(0);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const open  = (globalIdx: number) => { setLbError(false); setLightboxIdx(globalIdx); };
-  const close = () => setLightboxIdx(null);
+  const open  = (globalIdx: number) => { setLbError(false); setLightboxIdx(globalIdx); document.documentElement.setAttribute("data-modal-open", "true"); };
+  const close = () => { setLightboxIdx(null); document.documentElement.removeAttribute("data-modal-open"); };
 
   const prev = useCallback(() => {
     setLbError(false);

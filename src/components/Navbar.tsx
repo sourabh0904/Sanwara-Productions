@@ -51,7 +51,7 @@ export default function Navbar() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-400 ${
+      className={`site-navbar fixed top-0 left-0 w-full z-50 transition-all duration-400 ${
         isScrolled
           ? "bg-black/88 backdrop-blur-xl py-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
           : "bg-transparent py-5"

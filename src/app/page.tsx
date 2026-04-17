@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import FeaturedWork from "@/components/FeaturedWork";
 import Gallery from "@/components/Gallery";
 import SignatureFilm from "@/components/SignatureFilm";
+import InstagramReels from "@/components/InstagramReels";
 import About from "@/components/About";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
@@ -17,6 +18,7 @@ export default function Home() {
       <FeaturedWork />
       <Gallery />
       <SignatureFilm />
+      <InstagramReels />
       <About />
       <Testimonials />
       <CTA />
