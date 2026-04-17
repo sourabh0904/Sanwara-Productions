@@ -17,8 +17,10 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title, descripti
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
+    if (isOpen) document.documentElement.setAttribute("data-modal-open", "true");
+    else document.documentElement.removeAttribute("data-modal-open");
     if (!isOpen && videoRef.current) videoRef.current.pause();
-    return () => { document.body.style.overflow = "unset"; };
+    return () => { document.body.style.overflow = "unset"; document.documentElement.removeAttribute("data-modal-open"); };
   }, [isOpen]);
 
   useEffect(() => {
