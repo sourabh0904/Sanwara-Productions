@@ -9,7 +9,7 @@ import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import SamriddhiEvent from "@/components/SamriddhiEvent";
+import UpcomingEvent from "@/components/UpcomingEvent";
 
 export default function Home() {
   return (
@@ -22,7 +22,17 @@ export default function Home() {
       <SignatureFilm />
       <About />
       <Testimonials />
-      <SamriddhiEvent />
+      <UpcomingEvent
+        name="Samriddhi"
+        tagline="A Celebration of Prosperity & Grace"
+        date={new Date("2025-12-15T00:00:00")}
+        dateLabel="December 15, 2025"
+        venue={null}
+        bannerSrc={null}
+        whatsappNumber="918818888899"
+        whatsappMessage="Hi! I'd like to enquire about the Samriddhi event."
+        sectionId="samriddhi"
+      />
       <CTA />
       <Contact />
       <Footer />
