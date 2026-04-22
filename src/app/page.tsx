@@ -9,6 +9,7 @@ import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import SamriddhiEvent from "@/components/SamriddhiEvent";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <SignatureFilm />
       <About />
       <Testimonials />
+      <SamriddhiEvent />
       <CTA />
       <Contact />
       <Footer />
