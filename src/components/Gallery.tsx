@@ -16,7 +16,7 @@ const SECTIONS = [
       drive("1paXC3mHYAWgHUkKV9zOz5elN0mBVh4tj"),
       drive("1OLxsmonkvsion4-v1qSkPLjSg9d5yjrV"),
       drive("1-6iDdZrFBvg6XsHEMK-vbrtzj1Jtrg8P"),
-      drive("1_SHKC7oK8U24To120ZsF7jUD-6AfnAAE"),
+
       drive("1ORPNIgWI6Uu9RVFp7_ZibwAE5v6O5Vu_"),
       drive("1NpfkJiytU89Zpg0Mup7GBGKSlQYAXV_Z"),
       drive("1HSfEYft9hlpww3m86gOuyz0LBaZKGUpW"),
@@ -33,23 +33,23 @@ const SECTIONS = [
       drive("18jsm_D2OdEuSPFkCJDsjGO9FLP24mlO2"),
       drive("1iv3tRSlHRgW022R-wUptGpN3lxceUyGa"),
       drive("19iqobFvX_tkEONutSWb9pGGv1txobbkU"),
-      drive("1pJX1ZZsbjv_OejjlA--xeaiKOyPI4NP1"),
-      drive("1Rvnz8KagiIpSEvYtSlEI9ji6nUFf0P8M"),
+
+
     ],
   },
   {
     key: "celebrations",
     label: "Celebrations",
     images: [
-      drive("1_nKsVI2LUFhGcWxvNBSvmRURo6-aTXtB"),
+
       drive("10wXdX-FpxZHXe1g8O3V1oo132QVrlZh0"),
       drive("1sTCuhkCWLClUZcQqgZtqQNqfg4PWx1Qf"),
       drive("1bN4wR62DBmCrC1sLuzMq2frrWjJ75foC"),
-      drive("1TBNpbTLoDHOreH5WtWsi9BHa215HWTee"),
-      "/media/image_12.jpeg",
+
+
       "/media/image_13.jpeg",
-      "/media/image_14.jpeg",
-      "/media/image_16.jpeg",
+
+
     ],
   },
   {
@@ -59,7 +59,7 @@ const SECTIONS = [
       "/media/image_1.jpeg",
       "/media/image_5.jpeg",
       "/media/image_6.jpeg",
-      "/media/image_7.jpeg",
+
       "/media/image_8.jpeg",
       "/media/image_9.jpeg",
       "/media/image_10.jpeg",
@@ -138,7 +138,7 @@ export default function Gallery() {
   const touchStartX = useRef(0);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const open  = (globalIdx: number) => { setLbError(false); setLightboxIdx(globalIdx); document.documentElement.setAttribute("data-modal-open", "true"); };
+  const open  = (globalIdx: number) => { console.log(`[Gallery] Clicked photo #${globalIdx + 1} — src: ${ALL_IMAGES[globalIdx]}`); setLbError(false); setLightboxIdx(globalIdx); document.documentElement.setAttribute("data-modal-open", "true"); };
   const close = () => { setLightboxIdx(null); document.documentElement.removeAttribute("data-modal-open"); };
 
   const prev = useCallback(() => {
