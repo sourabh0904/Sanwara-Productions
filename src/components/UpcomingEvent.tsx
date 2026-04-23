@@ -57,11 +57,11 @@ function useCountdown(target: Date) {
 function CountUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="relative w-16 md:w-20 h-16 md:h-20 flex items-center justify-center">
+      <div className="relative w-16 md:w-14 h-16 md:h-14 flex items-center justify-center">
         <div className="absolute inset-0 rounded-xl border border-gold/30 bg-white/3 backdrop-blur-sm" />
         <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-gold/8 to-transparent" />
         <span
-          className="relative text-2xl md:text-3xl font-light text-gold tabular-nums leading-none"
+          className="relative text-2xl md:text-xl font-light text-gold tabular-nums leading-none"
           style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
         >
           {String(value).padStart(2, "0")}
@@ -153,7 +153,7 @@ export default function UpcomingEvent({
     <section
       ref={sectionRef}
       id={sectionId}
-      className="relative py-28 md:py-36 bg-[#070707] overflow-hidden"
+      className="relative py-28 md:py-14 bg-[#070707] overflow-hidden"
     >
       {/* ── Ambient glows ── */}
       <div className="absolute inset-0 pointer-events-none">
@@ -183,7 +183,7 @@ export default function UpcomingEvent({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="flex items-center justify-center gap-3 mb-8"
+          className="flex items-center justify-center gap-3 mb-8 md:mb-4"
         >
           <div className="w-10 h-px bg-gold/50" />
           <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function UpcomingEvent({
           className="text-center mb-4"
         >
           <h2
-            className="text-[64px] sm:text-[88px] md:text-[120px] lg:text-[150px] font-light leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-[#e8c97a] to-gold/60 select-none"
+            className="text-[64px] sm:text-[88px] md:text-[80px] lg:text-[95px] font-light leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-[#e8c97a] to-gold/60 select-none"
             style={{ fontFamily: "var(--font-cormorant), Georgia, serif" }}
           >
             {name}
@@ -217,7 +217,7 @@ export default function UpcomingEvent({
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.25 }}
-          className="text-center text-white/40 text-sm md:text-base tracking-[0.25em] uppercase mb-16"
+          className="text-center text-white/40 text-sm md:text-base tracking-[0.25em] uppercase mb-16 md:mb-6"
         >
           {tagline}
         </motion.p>
@@ -228,7 +228,7 @@ export default function UpcomingEvent({
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="relative rounded-2xl overflow-hidden mb-16 border border-gold/15 shadow-[0_0_80px_rgba(201,169,110,0.08)]"
+          className="relative rounded-2xl overflow-hidden mb-16 md:mb-6 border border-gold/15 shadow-[0_0_80px_rgba(201,169,110,0.08)] md:max-w-2xl md:mx-auto"
         >
           <motion.div style={{ y: bgY }} className="relative">
             {bannerSrc ? (
@@ -236,7 +236,7 @@ export default function UpcomingEvent({
               <img
                 src={bannerSrc}
                 alt={`${name} event banner`}
-                className="w-full h-auto block object-cover"
+                className="w-full h-auto block"
               />
             ) : (
               <BannerPlaceholder name={name} />
@@ -263,7 +263,7 @@ export default function UpcomingEvent({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.15 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16"
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16 md:mb-6"
         >
           {infoItems.map(({ icon: Icon, text }) => (
             <div key={text} className="flex items-center gap-2.5 text-white/45 text-sm tracking-wide">
@@ -279,7 +279,7 @@ export default function UpcomingEvent({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.25 }}
-          className="flex flex-col items-center gap-6 mb-16"
+          className="flex flex-col items-center gap-6 mb-16 md:mb-6"
         >
           <span className="text-[10px] uppercase tracking-[0.5em] text-white/25">Event Begins In</span>
           <div className="flex items-end gap-3 md:gap-5">

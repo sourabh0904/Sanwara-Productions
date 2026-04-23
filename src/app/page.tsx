@@ -28,7 +28,7 @@ export default function Home() {
         date={new Date("2025-12-15T00:00:00")}
         dateLabel="December 15, 2025"
         venue={null}
-        bannerSrc={null}
+        bannerSrc="https://lh3.googleusercontent.com/d/1b2S0DBgNUk81QIRKh7szfkmz5EbpAuJa"
         whatsappNumber="918818888899"
         whatsappMessage="Hi! I'd like to enquire about the Samriddhi event."
         sectionId="samriddhi"
