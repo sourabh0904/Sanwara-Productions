@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Calendar, MapPin, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface UpcomingEventProps {
@@ -20,10 +21,13 @@ export interface UpcomingEventProps {
   /** Venue string shown in the info row. Pass null to hide. */
   venue: string | null;
   /**
-   * Banner image URL. Pass null to show the animated placeholder until the
-   * real banner is ready — just swap in the URL later.
+   * Legacy single banner image URL.
    */
-  bannerSrc: string | null;
+  bannerSrc?: string | null;
+  /**
+   * Array of banner image URLs.
+   */
+  banners?: string[];
   /** WhatsApp number WITH country code, no '+' or spaces e.g. "918818888899" */
   whatsappNumber: string;
   /** Optional pre-filled message for the WhatsApp link */
@@ -122,6 +126,45 @@ function BannerPlaceholder({ name }: { name: string }) {
   );
 }
 
+function OptimizedBanner({ src, name, priority = false, bgY }: { src: string; name: string, priority?: boolean, bgY?: any }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div className="relative rounded-2xl overflow-hidden border border-gold/15 shadow-[0_0_80px_rgba(201,169,110,0.08)] md:max-w-2xl md:mx-auto">
+      {/* Placeholder with Skeleton effect */}
+      <div className={`absolute inset-0 z-10 transition-opacity duration-700 ${isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+        <BannerPlaceholder name={name} />
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{ x: ["-100%", "200%"] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
+          style={{
+            background:
+              "linear-gradient(105deg, transparent 40%, rgba(201,169,110,0.06) 50%, transparent 60%)",
+          }}
+        />
+      </div>
+
+      {/* Actual Image */}
+      <motion.div style={{ y: bgY }} className={`relative w-full ${!isLoaded ? "opacity-0" : "opacity-100"} transition-opacity duration-700`}>
+        <Image
+          src={src}
+          alt={`${name} event banner`}
+          width={1600}
+          height={900}
+          sizes="(max-width: 768px) 100vw, 800px"
+          className="w-full h-auto block"
+          onLoad={() => setIsLoaded(true)}
+          priority={priority}
+        />
+      </motion.div>
+
+      {/* Maintain aspect ratio while loading */}
+      {!isLoaded && <div className="w-full aspect-[16/7] md:aspect-[21/8] invisible" />}
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function UpcomingEvent({
   label = "Upcoming Event",
@@ -131,6 +174,7 @@ export default function UpcomingEvent({
   dateLabel,
   venue,
   bannerSrc,
+  banners,
   whatsappNumber,
   whatsappMessage,
   sectionId,
@@ -148,6 +192,8 @@ export default function UpcomingEvent({
     { icon: Calendar, text: dateLabel },
     ...(venue ? [{ icon: MapPin, text: venue }] : []),
   ];
+
+  const displayBanners = banners || (bannerSrc ? [bannerSrc] : []);
 
   return (
     <section
@@ -222,38 +268,31 @@ export default function UpcomingEvent({
           {tagline}
         </motion.p>
 
-        {/* ── Banner ── */}
+        {/* ── Banners ── */}
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="relative rounded-2xl overflow-hidden mb-16 md:mb-6 border border-gold/15 shadow-[0_0_80px_rgba(201,169,110,0.08)] md:max-w-2xl md:mx-auto"
+          className="w-full flex flex-col gap-6 md:gap-8 mb-16 md:mb-6"
         >
-          <motion.div style={{ y: bgY }} className="relative">
-            {bannerSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={bannerSrc}
-                alt={`${name} event banner`}
-                className="w-full h-auto block"
-              />
-            ) : (
+          {displayBanners.length > 0 ? (
+            displayBanners.map((src, index) => (
+              <OptimizedBanner key={src} src={src} name={name} bgY={bgY} priority={index === 0} />
+            ))
+          ) : (
+            <div className="relative rounded-2xl overflow-hidden border border-gold/15 shadow-[0_0_80px_rgba(201,169,110,0.08)] md:max-w-2xl md:mx-auto">
               <BannerPlaceholder name={name} />
-            )}
-          </motion.div>
-
-          {/* Shimmer sweep — only shown on placeholder */}
-          {!bannerSrc && (
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
-              style={{
-                background:
-                  "linear-gradient(105deg, transparent 40%, rgba(201,169,110,0.06) 50%, transparent 60%)",
-              }}
-            />
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
+                style={{
+                  background:
+                    "linear-gradient(105deg, transparent 40%, rgba(201,169,110,0.06) 50%, transparent 60%)",
+                }}
+              />
+            </div>
           )}
         </motion.div>
 
